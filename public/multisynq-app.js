@@ -1062,27 +1062,32 @@ async function finalizeNFT() {
     try {
         showLoading('Finalizing and minting NFT...');
         
-        // Simple tokenURI
-        const mockTokenURI = "ipfs://QmTest123";
+        // Check contributor count first
+        const contributorCount = await contract.getContributorCount();
+        console.log('Contributor count:', contributorCount.toString());
+        
+        if (contributorCount.toNumber() > 1) {
+            alert('ERROR: This contract can only mint to 1 contributor due to a bug. It tries to mint the same tokenId to multiple people, which is impossible in ERC721.');
+            hideLoading();
+            return;
+        }
+        
+        const mockTokenURI = "test";
         
         const tx = await contract.finalizeAndMint(mockTokenURI, {
-            gasLimit: 5000000
+            gasLimit: 3000000
         });
-        
-        addActivity(`Finalization transaction: ${tx.hash.slice(0,8)}...`);
         
         await tx.wait();
         
         hideLoading();
-        addActivity("NFT successfully minted!");
         alert('🎉 NFT minted!');
         loadContractData();
         
     } catch (error) {
         hideLoading();
-        console.error('Error finalizing NFT:', error);
-        addActivity("Failed to finalize NFT: " + error.message);
-        alert('Failed to finalize NFT: ' + error.message);
+        console.error('Error:', error);
+        alert('Contract is broken - it cannot mint to multiple contributors. Deploy a new contract.');
     }
 }
 
