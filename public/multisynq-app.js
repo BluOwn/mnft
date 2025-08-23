@@ -1059,19 +1059,14 @@ async function finalizeNFT() {
         return;
     }
     
-    if (!canvas) {
-        alert('Canvas not ready!');
-        return;
-    }
-    
     try {
         showLoading('Finalizing and minting NFT...');
         
-        // FIX: Use a simple, short tokenURI instead of large data
-        const mockTokenURI = "ipfs://QmTest123"; // Simple placeholder
+        // Simple tokenURI
+        const mockTokenURI = "ipfs://QmTest123";
         
         const tx = await contract.finalizeAndMint(mockTokenURI, {
-            gasLimit: 10000000
+            gasLimit: 5000000
         });
         
         addActivity(`Finalization transaction: ${tx.hash.slice(0,8)}...`);
@@ -1079,16 +1074,39 @@ async function finalizeNFT() {
         await tx.wait();
         
         hideLoading();
-        addActivity("NFT successfully minted to all contributors!");
-        alert('🎉 NFT successfully minted to all contributors!');
+        addActivity("NFT successfully minted!");
+        alert('🎉 NFT minted!');
         loadContractData();
         
     } catch (error) {
         hideLoading();
         console.error('Error finalizing NFT:', error);
-        
         addActivity("Failed to finalize NFT: " + error.message);
         alert('Failed to finalize NFT: ' + error.message);
+    }
+}
+
+// Add this reset function for owner
+async function resetContract() {
+    if (!contract) {
+        alert('Please connect your wallet first!');
+        return;
+    }
+    
+    try {
+        showLoading('Resetting contract...');
+        
+        const tx = await contract.reset();
+        await tx.wait();
+        
+        hideLoading();
+        addActivity("Contract reset successfully!");
+        loadContractData();
+        
+    } catch (error) {
+        hideLoading();
+        console.error('Error resetting contract:', error);
+        alert('Failed to reset: ' + error.message);
     }
 }
 
