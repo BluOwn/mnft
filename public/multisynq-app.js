@@ -1093,7 +1093,10 @@ async function finalizeNFT() {
             ]
         }))}`;
         
-        const tx = await contract.finalizeAndMint(mockTokenURI);
+        // FIX: Set manual gas limit to avoid estimation
+        const tx = await contract.finalizeAndMint(mockTokenURI, {
+            gasLimit: 10000000  // 10 million gas - high enough for multiple contributors
+        });
         
         addActivity(`Finalization transaction: ${tx.hash.slice(0,8)}...`);
         
@@ -1120,7 +1123,6 @@ async function finalizeNFT() {
         }
     }
 }
-
 // Utility functions
 function updateStrokeCount() {
     document.getElementById('strokeCount').textContent = `Total strokes: ${strokeCount}`;
