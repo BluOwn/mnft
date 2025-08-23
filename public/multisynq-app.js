@@ -1093,9 +1093,10 @@ async function finalizeNFT() {
             ]
         }))}`;
         
-        // FIX: Set manual gas limit to avoid estimation
+        // FIX: Use maximum possible gas limit
         const tx = await contract.finalizeAndMint(mockTokenURI, {
-            gasLimit: 10000000  // 10 million gas - high enough for multiple contributors
+            gasLimit: 30000000,  // 30 million gas - maximum for most networks
+            gasPrice: ethers.utils.parseUnits('50', 'gwei')  // Higher gas price for priority
         });
         
         addActivity(`Finalization transaction: ${tx.hash.slice(0,8)}...`);
@@ -1111,18 +1112,13 @@ async function finalizeNFT() {
         hideLoading();
         console.error('Error finalizing NFT:', error);
         
-        if (error.message.includes('Only owner')) {
-            alert('Only the contract owner can finalize the NFT');
-            addActivity("Error: Only owner can finalize");
-        } else if (error.message.includes('No contributors')) {
-            alert('No contributors yet - someone needs to contribute first');
-            addActivity("Error: No contributors");
-        } else {
-            addActivity("Failed to finalize NFT: " + error.message);
-            alert('Failed to finalize NFT: ' + error.message);
-        }
+        // Show the actual error message
+        addActivity("Failed to finalize NFT: " + error.message);
+        alert('Failed to finalize NFT: ' + error.message);
     }
 }
+
+
 // Utility functions
 function updateStrokeCount() {
     document.getElementById('strokeCount').textContent = `Total strokes: ${strokeCount}`;
