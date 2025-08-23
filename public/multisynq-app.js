@@ -1067,36 +1067,11 @@ async function finalizeNFT() {
     try {
         showLoading('Finalizing and minting NFT...');
         
-        // Convert canvas to data URL (mock IPFS)
-        const dataURL = canvas.toDataURL('image/png');
-        const mockTokenURI = `data:application/json,${encodeURIComponent(JSON.stringify({
-            name: "Collaborative Artwork",
-            description: "Created collaboratively using MultiSynq real-time drawing",
-            image: dataURL,
-            attributes: [
-                {
-                    trait_type: "Type",
-                    value: "Collaborative Art"
-                },
-                {
-                    trait_type: "Platform",
-                    value: "MultiSynq"
-                },
-                {
-                    trait_type: "Blockchain",
-                    value: "Monad Testnet"
-                },
-                {
-                    trait_type: "Strokes",
-                    value: strokeCount
-                }
-            ]
-        }))}`;
+        // FIX: Use a simple, short tokenURI instead of large data
+        const mockTokenURI = "ipfs://QmTest123"; // Simple placeholder
         
-        // FIX: Use maximum possible gas limit
         const tx = await contract.finalizeAndMint(mockTokenURI, {
-            gasLimit: 30000000,  // 30 million gas - maximum for most networks
-            gasPrice: ethers.utils.parseUnits('50', 'gwei')  // Higher gas price for priority
+            gasLimit: 10000000
         });
         
         addActivity(`Finalization transaction: ${tx.hash.slice(0,8)}...`);
@@ -1112,7 +1087,6 @@ async function finalizeNFT() {
         hideLoading();
         console.error('Error finalizing NFT:', error);
         
-        // Show the actual error message
         addActivity("Failed to finalize NFT: " + error.message);
         alert('Failed to finalize NFT: ' + error.message);
     }
